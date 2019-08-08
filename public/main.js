@@ -60,7 +60,7 @@ class PlayGame extends Phaser.Scene {
     this.load.multiatlas('snowman', ['./snowman3.json']);
     this.load.multiatlas('win_lose', ['./win-lose.json']);
 
-    // Word dictionary
+    // Phrase dictionary
     this.dictionary = new Dictionary();
 
     // Sounds
@@ -107,7 +107,7 @@ class PlayGame extends Phaser.Scene {
         .setVisible(false);
     this.background = this.add.image(0, 0, 'background').setOrigin(0, 0)
         .setDisplaySize(this.scale.width, this.scale.height);
-    this.wordText = this.add.text(50, posText, '',
+    this.phraseText = this.add.text(50, posText, '',
         {fontSize: 25, color: '#00ff00'})
         .setOrigin(0, 0).setVisible(false);
     this.commandText = this.add.text(50, posText + 30, '',
@@ -116,11 +116,11 @@ class PlayGame extends Phaser.Scene {
         {fontSize: 25, color: '#00ff00'}).setOrigin(0, 0).setVisible(false);
     this.statusText = this.add.text(50, posText + 90, '',
         {fontSize: 25, color: '#00ff00'}).setOrigin(0, 0).setVisible(false);
-    this.visibleObjects.push(this.wordText, this.commandText, this.letterText,
+    this.visibleObjects.push(this.phraseText, this.commandText, this.letterText,
         this.statusText, this.background);
 
-    // Wordplaceholder orchestrates snowman and word placeholders
-    this.wordPlaceholder = new WordPlaceholder(this, this.dictionary.getWord());
+    // Phraseplaceholder orchestrates snowman and phrase placeholders
+    this.phrasePlaceholder = new PhrasePlaceholder(this, this.dictionary.getPhrase());
 
     // Set assistant at game level.
     this.assistant = new Assistant(this);
@@ -128,7 +128,7 @@ class PlayGame extends Phaser.Scene {
     this.assistant.setCallbacks();
 
     this.gameOver = false;
-    this.setCaptions('___', '____', this.wordPlaceholder.word.text,
+    this.setCaptions('___', '____', this.phrasePlaceholder.phrase.text,
         '____', '____');
 
     this.setKeyboardBindings();
@@ -141,35 +141,35 @@ class PlayGame extends Phaser.Scene {
     const that = this; // Needed for closure
     const re = /^[A-Za-z.,\/[]+$/;
     this.input.keyboard.on('keydown', function(eventName, event) {
-      if (!that.wordPlaceholder.isGameOver()) {
+      if (!that.phrasePlaceholder.isGameOver()) {
         if (!re.test(eventName.key)) {
           console.log('Invalid char. Must use alphabet letters.');
           return;
         }
-        const res = that.wordPlaceholder.isInWord(eventName.key);
+        const res = that.phrasePlaceholder.isInPhrase(eventName.key);
         if (!res) {
           that.wrongSound.play();
         } else {
           that.correctSound.play('up');
         }
       }
-      if (that.wordPlaceholder.isGameOver()) {
+      if (that.phrasePlaceholder.isGameOver()) {
         console.log('Restart game by using forward slash key');
       }
       if (eventName.key === '/') {
         that.startSnowman.bind(that)();
       }
       if (eventName.key === '.') {
-        that.toggleCaptions(that.wordText, that.commandText, that.letterText,
+        that.toggleCaptions(that.phraseText, that.commandText, that.letterText,
             that.statusText);
       }
       if (eventName.key === ',') {
-        if (that.wordPlaceholder.isGameOver()) {
-          that.finishGame.bind(that)(that.wordPlaceholder.userWins());
+        if (that.phrasePlaceholder.isGameOver()) {
+          that.finishGame.bind(that)(that.phrasePlaceholder.userWins());
         }
       }
       if (eventName.key === '[') {
-        console.log(JSON.stringify(that.wordPlaceholder.word));
+        console.log(JSON.stringify(that.phrasePlaceholder.phrase));
       }
     });
   }
@@ -179,13 +179,13 @@ class PlayGame extends Phaser.Scene {
    *
    * @param  {Text} command Google Assistant command text field.
    * @param  {Text} letter Guessed letter text field.
-   * @param  {Text} word to be guessed text field.
+   * @param  {Text} phrase to be guessed text field.
    * @param  {Text} status to display when guess is correct or incorrect.
    */
-  setCaptions(command, letter, word, status) {
+  setCaptions(command, letter, phrase, status) {
     this.commandText.text = `Command: ${command}`;
-    this.letterText.text = `Letter/Word: ${letter}`;
-    this.wordText.text = `Word: ${word}`;
+    this.letterText.text = `Letter/Phrase: ${letter}`;
+    this.phraseText.text = `Phrase: ${phrase}`;
     this.statusText.text = `Status: ${status}`;
   }
 
@@ -203,8 +203,8 @@ class PlayGame extends Phaser.Scene {
    * Call to start snowman and reset images from initial state.
    */
   startSnowman() {
-    this.wordPlaceholder.reset(this, this.dictionary.getWord());
-    this.setCaptions('___', '____', this.wordPlaceholder.word.text,
+    this.phrasePlaceholder.reset(this, this.dictionary.getPhrase());
+    this.setCaptions('___', '____', this.phrasePlaceholder.phrase.text,
         '____', '____');
     this.gameOver = false;
     this.setVisible(true);
@@ -223,7 +223,7 @@ class PlayGame extends Phaser.Scene {
 
 
   /**
-   * Finish game by setting invisible main stage (sky, word placeholder,
+   * Finish game by setting invisible main stage (sky, phrase placeholder,
    * and snowman) and displaying images of win or lose.
    * @param  {boolean} win true to display win image or false to display
    * false one.

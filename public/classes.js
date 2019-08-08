@@ -69,133 +69,100 @@ class Snowman {
 }
 
 /**
- * This class represents the placeholder for the word on the screen.
+ * This class represents the placeholder for the phrase on the screen.
  *
  * This class is used to simplify calling individual operations on multiple
- * objects represented on the screen. In this case, Snowman and Word
+ * objects represented on the screen. In this case, Snowman and Phrase
  * placeholder mainly. So, when the user makes a guess, the game only
  * needs to use this class.
  */
-class WordPlaceholder {
+
+class PhrasePlaceholder {
   /**
    * @constructor
    * @param  {Phaser} game instance representing the game.
-   * @param  {string} word to be matched by the user.
+   * @param  {string} phrase to be matched by the user.
    */
-  constructor(game, word) {
+  constructor(game, phrase) {
     this.scoreText = game.add.bitmapText(0, 0, 'googleSans', '', 100, 1);
-    this.setWord(game, word);
+    this.setPhrase(game, phrase);
     this.snowman = new Snowman(game);
     game.visibleObjects.push(this.scoreText);
   }
 
   /**
-   * Set the word to be guessed, style, and position on the screen.
+   * Set the phrase to be guessed, style, and position on the screen.
    * @param  {game} game instance representing the game.
-   * @param  {string} word to be matched by the user.
+   * @param  {string} phrase to be matched by the user.
    */
-  setWord(game, word) {
-    this.word = new Word(word);
-    this.word.setBitmapText(this.scoreText);
-    this.scoreText.text = this.word.display;
-    this.scoreText.size = (game.scale.width - 80) / word.length;
+  setPhrase(game, phrase) {
+    this.phrase = new Phrase(phrase);
+    this.phrase.setBitmapText(this.scoreText);
+    this.scoreText.text = this.phrase.display;
+    this.scoreText.size = (game.scale.width - 80) / phrase.length;
     this.scoreText.setLetterSpacing(20);
     this.scoreText.x = game.scale.width / 2 - (this.scoreText.width / 2);
-    // Give enough space (pixels) to display word at the end of screen
+    // Give enough space (pixels) to display phrase at the end of screen
     this.scoreText.y = game.scale.height - 150;
   }
 
   /**
-   * Reset the word to be guessed. Usually required when starting a new word.
+   * Reset the phrase to be guessed. Usually required when starting a new phrase.
    * @param  {game} game instance representing the game.
-   * @param  {string} word to be matched by the user.
+   * @param  {string} phrase to be matched by the user.
    */
-  reset(game, word) {
+  reset(game, phrase) {
     this.snowman.reset();
-    this.setWord(game, word);
-  }
-
-  /**
-   * Check if guessed letter or word matches the right word.
-   * @param {string} letterOrWord guessed letter or word.
-   * @return {boolean} if letter or word is a match, return true, otherwise
-   * return false.
-   */
-  isInWord(letterOrWord) {
-    const foundLetter = this.word.isInWord(letterOrWord);
-    if (!foundLetter) this.snowman.showNext();
-    this.scoreText.x = game.scale.width / 2 - (this.scoreText.width / 2);
-    return foundLetter;
-  }
-  /**
-   * Used to stop accepting guessing words.
-   * @return  {boolean} if either there are no more parts in snowman
-   * or word is complete.
-   */
-  isGameOver() {
-    if (!this.snowman.hasMoreParts() || this.word.isWordComplete()) {
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Determine whether or not the user won.
-   * @return  {boolean} When all word placeholders are complete and snowman
-   * has more parts, return true, otherwise return false.
-   */
-  userWins() {
-    if (this.word.isWordComplete() && this.snowman.hasMoreParts()) {
-      return true;
-    }
-    return false;
+    this.setPhrase(game, phrase);
   }
 }
 
+
+
 /**
- * Represent the word to be guessed and helper functions to verify guesses.
+ * Represent the phrase to be guessed and helper functions to verify guesses.
  */
-class Word {
+class Phrase {
   /**
-   * Sets placeholders to be displayed. They must be equal to the word.
-   * @param  {string} text or word to be guessed.
+   * Sets placeholders to be displayed. They must be equal to the phrase.
+   * @param  {string} text or phrase to be guessed.
    */
   constructor(text) {
     this.text = text.toUpperCase();
-    this.display = '_'.repeat(this.text.length);
+    this.display = this.text;
   }
   /**
    * @param  {bitMapText} bitMapText Represents the actual image on the screen
-   * displaying the word placeholder.
+   * displaying the phrase placeholder.
    */
   setBitmapText(bitMapText) {
     this.bitMapText = bitMapText;
   }
   /**
-   * Check the guessed letter or word against the actual word.
-   * @param  {string} letterOrWord user guess. It can be a single letter
-   * or a word.
-   * @return {boolean} true when it finds a match against the actual word.
+   * Check the guessed letter or phrase against the actual phrase.
+   * @param  {string} letterOrPhrase user guess. It can be a single letter
+   * or a phrase.
+   * @return {boolean} true when it finds a match against the actual phrase.
    */
-  isInWord(letterOrWord) {
-    letterOrWord = letterOrWord.toLocaleUpperCase();
-    // if word, compare guess and word, exist if there's no match
-    if (letterOrWord.length > 1 &&
-      letterOrWord.toLocaleUpperCase() != this.text.toLocaleUpperCase()) {
+  isInPhrase(letterOrPhrase) {
+    letterOrPhrase = letterOrPhrase.toLocaleUpperCase();
+    // if phrase, compare guess and phrase, exist if there's no match
+    if (letterOrPhrase.length > 1 &&
+      letterOrPhrase.toLocaleUpperCase() != this.text.toLocaleUpperCase()) {
       return false;
     }
-    for (let i = 0; i < letterOrWord.length; i++) {
-      const letterIndexes = this.findLetter(letterOrWord[i]);
+    for (let i = 0; i < letterOrPhrase.length; i++) {
+      const letterIndexes = this.findLetter(letterOrPhrase[i]);
       if (letterIndexes.length == 0) {
         return false;
       }
-      this.replaceLetterPlaceholders(letterOrWord[i], letterIndexes);
+      this.replaceLetterPlaceholders(letterOrPhrase[i], letterIndexes);
     }
     this.bitMapText.text = this.display;
     return true;
   }
   /**
-   * Validate if actual word is contains the guessed letter.
+   * Validate if actual phrase is contains the guessed letter.
    * @param  {string} guessLetter
    * @return {Array} indices that have the letter.
    */
@@ -221,16 +188,16 @@ class Word {
   }
 
   /**
-   * Validate that the user completes the word successfully or not.
-   * @return {boolean} true when the guessed word is the same as the
-   * actual word.
+   * Validate that the user completes the phrase successfully or not.
+   * @return {boolean} true when the guessed phrase is the same as the
+   * actual phrase.
    */
-  isWordComplete() {
+  isPhraseComplete() {
     return this.text.toUpperCase() === this.display.toUpperCase();
   }
 
   /**
-  * Replace an letter within the placeholder word using word indexes.
+  * Replace an letter within the placeholder phrase using phrase indexes.
   *
   * @param  {integer} index to replace placeholder with replacement letter.
   * @param  {string} replacement letter.

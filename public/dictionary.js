@@ -15,14 +15,21 @@
  */
 'use strict';
 
-const words = ['Sombrero', 'Google', 'Mountain', 'California',
-  'Kubernetes', 'Tensorflow', 'Rhythmic', 'Numbskull', 'Haphazard',
-  'Memento', 'Ostracize', 'Mystify', 'Squawk', 'Wildebeest', 'Zombie',
-  'Zealous', 'Colombia'];
+const phrases = [
+  'She sells seashells by the seashore',
+  'I saw Susie sitting in a shoe shine shop',
+  'I scream, you scream, we all scream for ice cream',
+  `Round the rough and rugged rock the ragged rascal rudely ran.`,
+  `The sixth sick sheik's sixth sheep's sick.`,
+  `I thought a thought, But the thought I thought wasn’t the thought I thought I thought. If the thought I thought thought had been the thought thought, I wouldn’t have thought so much.`,
+  `Denise sees the fleece, Denise sees the fleas. At least Denise could sneeze. And feed and freeze the fleas.`,
+  `Luke Luck likes lakes. Luke’s duck likes lakes. Luke Luck licks lakes. Luke’s duck licks lakes. Duck takes licks in lakes Luke Luck likes. Luke Luck takes licks in lakes duck likes.`,
+  `Black background, brown background, Brown background, black background, Background background, black, black, brown, brown.`
+];
 
 const clone = (obj) => JSON.parse(JSON.stringify(obj));
 /**
- * Dictionary of words to be used by Snowman.
+ * Dictionary of phrases to be used by Snowman.
  */
 class Dictionary {
   /**
@@ -31,20 +38,20 @@ class Dictionary {
    * on a less trivial implementation.
    */
   constructor() {
-    this.entries = this.shuffle(clone(words));
+    this.entries = this.shuffle(clone(phrases));
   }
 
   /**
-   * Retrieve words from the dictionary.
+   * Retrieve phrases from the dictionary.
    *
-   * When a word is used, set isUsed flag to true, to avoid the same word
+   * When a phrase is used, set isUsed flag to true, to avoid the same phrase
    * to be retrieved.
    *
-   * @return {string} an unused word to be used by Snowman placeholder.
+   * @return {string} an unused phrase to be used by Snowman placeholder.
    */
-  getWord() {
+  getPhrase() {
     if (this.entries.length === 0) {
-      this.entries = this.shuffle(clone(words));
+      this.entries = this.shuffle(clone(phrases));
     }
     return this.entries.pop();
   }

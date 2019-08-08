@@ -31,13 +31,13 @@ class Assistant {
     const that = this;
     this.commands = {
       GUESS: function(data) {
-        that.guess(data.letterOrWord.toUpperCase());
+        that.guess(data.letterOrPhrase.toUpperCase());
       },
       PLAY_AGAIN: function() {
         that.game.startSnowman();
       },
       TOGGLE_CAPTIONS: function() {
-        that.game.toggleCaptions(that.game.wordText, that.game.commandText,
+        that.game.toggleCaptions(that.game.phraseText, that.game.commandText,
             that.game.letterText, that.game.statusText);
       },
       DEFAULT: function() {
@@ -71,38 +71,38 @@ class Assistant {
    * Orchestrate instructions to change visual element and trigger sounds.
    * Trigger other instructions to Actions on Google to trigger intents
    * that present options to users.
-   * @param {string} letterOrWord guess to be checked against the actual word.
+   * @param {string} letterOrPhrase guess to be checked against the actual phrase.
    */
-  guess(letterOrWord) {
-    const foundLetter = this.game.wordPlaceholder.isInWord(letterOrWord);
-    const rightWord = this.game.wordPlaceholder.word.text;
+  guess(letterOrPhrase) {
+    const foundLetter = this.game.phrasePlaceholder.isInPhrase(letterOrPhrase);
+    const rightPhrase = this.game.phrasePlaceholder.phrase.text;
     const displayWinOrLoseScreen = () => {
-      this.game.finishGame(this.game.wordPlaceholder.userWins());
+      this.game.finishGame(this.game.phrasePlaceholder.userWins());
       this.canvas.sendTextQuery('Play again or quit?');
     };
 
-    this.game.setCaptions.bind(this.game)('Guess letter', letterOrWord,
-        rightWord,
+    this.game.setCaptions.bind(this.game)('Guess letter', letterOrPhrase,
+        rightPhrase,
       foundLetter ? 'Correct' : 'Incorrect');
-    if (!this.game.wordPlaceholder.isGameOver()) {
+    if (!this.game.phrasePlaceholder.isGameOver()) {
       if (foundLetter) { // trigger right guess random response
         this.game.correctSound.play('up');
-        this.canvas.sendTextQuery(`Right Guess ${letterOrWord}`);
+        this.canvas.sendTextQuery(`Right Guess ${letterOrPhrase}`);
       } else { // trigger wrong guess intent from Actions on Google
         this.game.wrongSound.play();
-        this.canvas.sendTextQuery(`Wrong Guess ${letterOrWord}`);
+        this.canvas.sendTextQuery(`Wrong Guess ${letterOrPhrase}`);
       }
     } else { // when game is over, present different options, and present
       // you win or lose image
       setTimeout(displayWinOrLoseScreen, 8000);
-      if (this.game.wordPlaceholder.userWins()) {
+      if (this.game.phrasePlaceholder.userWins()) {
         this.game.winSound.play();
-        this.canvas.sendTextQuery(`${rightWord.toUpperCase()} word is right`);
+        this.canvas.sendTextQuery(`${rightPhrase.toUpperCase()} phrase is right`);
       } else {
         this.game.loseSound.play();
-        this.canvas.sendTextQuery(`The word to guess is ${rightWord.toUpperCase()}`);
-        // Reveal the word in placeholder
-        this.game.wordPlaceholder.isInWord(rightWord.toUpperCase());
+        this.canvas.sendTextQuery(`The phrase to guess is ${rightPhrase.toUpperCase()}`);
+        // Reveal the phrase in placeholder
+        this.game.phrasePlaceholder.isInPhrase(rightPhrase.toUpperCase());
       }
     }
   }

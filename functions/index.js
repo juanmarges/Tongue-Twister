@@ -22,25 +22,26 @@ const {dialogflow, HtmlResponse} = require('actions-on-google');
 const firebaseConfig = JSON.parse(process.env.FIREBASE_CONFIG);
 const app = dialogflow({debug: true});
 
-const INSTRUCTIONS = `After 4 incorrect guesses, a snowman is built and the ` +
-  `game is over. If you know the word, you can say, for instance, ` +
-  `“The word is penguin.” You can try another word, or ask for help.`;
+const INSTRUCTIONS = `You will be given a tongue twister for you to say. ` +
+  `Simply repeat the given tongue twister as accurately as you can.` +
+  `If you can't, say "try again" to repeat the attempt or "next" ` +
+  `to try another tongue twister.`;
 
 const PLAY_AGAIN_INSTRUCTIONS = `You can play another or quit?`;
 
-const WELCOME_RESPONSES = [`Hey, you're back to Snowman! ` +
-  `Try guessing a letter in the word, or guess the entire word ` +
-  `if you think you know what it is.`, `Welcome back to Snowman! ` +
-  `Try guessing a letter in the word, or guess the entire word if ` +
-  `you're feeling confident!`, `I'm glad you're back to play! ` +
-  `Try guessing a letter in the word or guessing the word.`, `Hey there, ` +
-  `you made it! Let's play Snowman. Try guessing a letter in the word or ` +
-  `guessing the word.`];
+const WELCOME_RESPONSES = [`Welcome back to Tongue Twisters! ` +
+  `Let's see how well you can say these tongue twisters! `, 
+  `Welcome back to Tongue Twisters! ` +
+  `Simply repeat the given tongue twister, and see how well you've done!`, 
+  `I'm glad you're back to play! ` +
+  `Let's test how twisted your tongue can get!`, `Hey there, ` +
+  `you made it! Let's play Tongue Twisters. ` +
+  `Simply repeat the given tongue twister and see how well you can say it!`];
 
 const RIGHT_RESPONSES = ['Right on! Good guess.', 'Splendid!',
   'Wonderful! Keep going!', 'Easy peasy lemon squeezy!', 'Easy as pie!'];
 
-const WRONG_RESPONSES = [`Whoops, that letter isn’t in the word. Try again!`,
+const WRONG_RESPONSES = [`Whoops, that letter isn’t in the phrase. Try again!`,
   'Try again!', 'You can do this!', 'Incorrect. Keep on trying!'];
 
 const REVEAL_WORD_RESPONSES = [`Better luck next time!`,
@@ -65,8 +66,8 @@ app.intent('Welcome', (conv) => {
   if (conv.user.last.seen) {
     conv.ask(randomArrayItem(WELCOME_RESPONSES));
   } else {
-    conv.ask(`Welcome to Snowman! Try to figure out the word by ` +
-      `guessing letters that you think are in the word. ${INSTRUCTIONS}`);
+    conv.ask(`Welcome to Tongue Twister! Let's see how well you can ` +
+      `say some of the most popular tongue twisters. ${INSTRUCTIONS}`);
   }
   conv.ask(new HtmlResponse({
     url: `https://${firebaseConfig.projectId}.firebaseapp.com`,
@@ -79,17 +80,17 @@ app.intent('Fallback', (conv) => {
 });
 
 /**
- * Guess a letter or word from Snowman.
+ * Guess a letter or phrase from Snowman.
  *
  * @param  {conv} standard Actions on Google conversation object.
- * @param  {string} letterOrWord from A-Z.
+ * @param  {string} letterOrPhrase from A-Z.
  */
-app.intent('Guess Letter or Word', (conv, {letterOrWord}) => {
-  conv.ask(`Let's see if ${letterOrWord} is there...`);
+app.intent('Guess Letter or Phrase', (conv, {letterOrPhrase}) => {
+  conv.ask(`Let's see if ${letterOrPhrase} is there...`);
   conv.ask(new HtmlResponse({
     data: {
       command: 'GUESS',
-      letterOrWord,
+      letterOrPhrase,
     },
   }));
 });
@@ -128,8 +129,8 @@ app.intent('Play Again', (conv) => {
  *
  * @param  {conv} standard Actions on Google conversation object.
  */
-app.intent('Right Guess', (conv, {letterOrWord}) => {
-  conv.ask(`${letterOrWord} is right. ${randomArrayItem(RIGHT_RESPONSES)}`);
+app.intent('Right Guess', (conv, {letterOrPhrase}) => {
+  conv.ask(`${letterOrPhrase} is right. ${randomArrayItem(RIGHT_RESPONSES)}`);
   conv.ask(new HtmlResponse());
 });
 
@@ -138,8 +139,8 @@ app.intent('Right Guess', (conv, {letterOrWord}) => {
  *
  * @param  {conv} standard Actions on Google conversation object.
  */
-app.intent('Wrong Guess', (conv, {letterOrWord}) => {
-  conv.ask(`${letterOrWord} is wrong. ${randomArrayItem(WRONG_RESPONSES)}`);
+app.intent('Wrong Guess', (conv, {letterOrPhrase}) => {
+  conv.ask(`${letterOrPhrase} is wrong. ${randomArrayItem(WRONG_RESPONSES)}`);
   conv.ask(new HtmlResponse());
 });
 
@@ -149,8 +150,8 @@ app.intent('Wrong Guess', (conv, {letterOrWord}) => {
  * @param  {conv} standard Actions on Google conversation object.
  */
 app.intent('Instructions', (conv) => {
-  conv.ask(`Try guessing a letter that's in the word or guessing ` +
-  `the word itself. Figure out the word before the snowman is built to win ` +
+  conv.ask(`Try guessing a letter that's in the phrase or guessing ` +
+  `the phrase itself. Figure out the phrase before the snowman is built to win ` +
   `the game! ${INSTRUCTIONS}`);
   conv.ask(new HtmlResponse());
 });
@@ -166,23 +167,23 @@ app.intent('Play Again Instructions', (conv) => {
 });
 
 /**
- * Reveal the word when player loses the game.
+ * Reveal the phrase when player loses the game.
  *
  * @param {conv} standard Actions on Google conversation object.
- * @param {word} set by the client.
+ * @param {phrase} set by the client.
  */
-app.intent('Game Over Reveal Word', (conv, {word}) => {
-  conv.ask(`Sorry, you lost. The word is ${word}`);
+app.intent('Game Over Reveal Phrase', (conv, {phrase}) => {
+  conv.ask(`Sorry, you lost. The phrase is ${phrase}`);
   conv.ask(new HtmlResponse());
 });
 
 /**
- * Reveal the word when player wins the game.
+ * Reveal the phrase when player wins the game.
  *
  * @param {conv} standard Actions on Google conversation object.
  */
-app.intent('Game Won', (conv, {word}) => {
-  conv.ask(`${word} word is right! ${randomArrayItem(WIN_RESPONSES)}`);
+app.intent('Game Won', (conv, {phrase}) => {
+  conv.ask(`${phrase} phrase is right! ${randomArrayItem(WIN_RESPONSES)}`);
   conv.ask(new HtmlResponse());
 });
 
